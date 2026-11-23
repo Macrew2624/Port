@@ -14,9 +14,26 @@ int main() {
   struct sockaddr_in adress;
 
   adress.sin_family = AF_INET;
-  // adress.sin_addr = INADDR_ANY;
+  adress.sin_addr.s_addr = INADDR_ANY;
+  adress.sin_port = htons(8080);
 
-  int idk = bind(server_fd, INADDR_ANY, sizeof(INADDR_ANY));
+  if (bind(server_fd, (struct sockaddr *)&adress, sizeof(adress)) == -1) {
+    perror("Couldn't bind");
+    return 1;
+  }
+
+  if (listen(server_fd, 64) == -1) {
+    perror("Couldn't listen");
+    return 1;
+  }
+
+  socklen_t *size = sizeof(adress);
+  int accepted_socket_fd = accept(server_fd, (struct sockaddr *)&adress, size);
+
+  if (accepted_socket_fd == -1) {
+    perror("Couldn't accept");
+    return 1;
+  }
 
   return 0;
 }
